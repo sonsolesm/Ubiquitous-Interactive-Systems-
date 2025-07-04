@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos</title>
+  <link href="style.css" rel="stylesheet">
+    <link href="producto_scan.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+  </head>
+  <body>
+    <header>
+      <div id="navbar" class="nav-container">
+        <nav class="nav-bar">
+          <div id="menu-btn">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+          <button id="btnAsistencia">Asistencia</button> 
+        </nav>
+      </div>
+    </header>
+      <div id="dropdown-menu" class="dropdown-menu">
+        <div class="cancel">
+          <div id="cancel-btn">
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+        <div class="links">
+          <a href="mi_lista.html">Mi Lista</a><br>
+          <a href="favoritos.html">Favoritos</a><br>
+          <a href="productos.html">Productos</a><br>
+          <a href="escanear.html">Escanear</a><br>
+          <a href="voicecontrol.html">Búsqueda</a><br>
+        </div>
+      </div>
+
+    <div class="menu">
+        <button>☰</button>
+        <div class="menu-content">
+            <a href="mi_lista.html">Mi Lista</a>
+            <a href="productos.html">Productos</a>
+            <a href="favoritos.html">Favoritos</a>
+            <a href="escanear.html">Escanear</a>
+            <a href="pago.html">Pago</a>
+        </div>
+    </div>
+      <h1>Producto escaneado</h1>
+        <div class="producto_super">
+            <h2>Pasta</h2>
+            <img src="media/img/pasta.png" alt=" Pasta" id="Pasta">
+            <p>Precio: 3.50 €</p>
+          <div class="botones">
+            <button class="btn-carrito" onclick="agregarAlCarrito(3, 'Pasta', 3.5)">+</button>
+            <button class="btn-favorito" onclick="agregarAFavoritos(3, 'Pasta', 3.5)"><i class="fas fa-star"></i></button>
+          </div>
+  <div id="notification" class="notification"></div>
+
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+      <script>
+          const socket = io();
+          let lastX, lastY, lastZ;
+          let moveThreshold = 30;
+          let productoAñadido = false;
+
+          window.addEventListener('devicemotion', function(event) {
+              let x = event.accelerationIncludingGravity.x;
+              let y = event.accelerationIncludingGravity.y;
+              let z = event.accelerationIncludingGravity.z;
+
+              if (lastX === null) {
+                  lastX = x;
+                  lastY = y;
+                  lastZ = z;
+                  return;
+              }
+
+              let deltaX = Math.abs(lastX - x);
+              let deltaY = Math.abs(lastY - y);
+              let deltaZ = Math.abs(lastZ - z);
+
+              if (deltaX + deltaY + deltaZ > moveThreshold) {
+                  if (!productoAñadido) {
+                      agregarAFavoritos(3, 'Pasta', 3.5); // ID del producto, nombre y precio
+                      mostrarNotificacion('Producto añadido a favoritos');
+                      productoAñadido = true;
+                  } else {
+                      mostrarNotificacion('Producto ya añadido');
+                  }
+              }
+
+              lastX = x;
+              lastY = y;
+              lastZ = z;
+          });
+
+          window.addEventListener('DOMContentLoaded', function() {
+              lastX = lastY = lastZ = null;
+          });
+
+          function mostrarNotificacion(mensaje) {
+              const notification = document.getElementById('notification');
+              notification.textContent = mensaje;
+              notification.style.display = 'block';
+              setTimeout(() => {
+                  notification.style.display = 'none';
+              }, 3000);
+          }
+
+          // Función para agregar un producto al carrito
+          function agregarAlCarrito(id, nombre, precio) {
+              const producto = { id, nombre, precio };
+              socket.emit('agregarAlCarrito', producto);
+          }
+
+          // Función para agregar un producto a favoritos
+          function agregarAFavoritos(id, nombre, precio) {
+              const producto = { id, nombre, precio };
+              socket.emit('agregarAFavoritos', producto);
+          }
+        document.getElementById('btnAsistencia').addEventListener('click', function() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    socket.emit('solicitarAsistencia', {
+                        ubicacion: {
+                            coords: {
+                                latitude: position.coords.latitude,
+                                longitude: position.coords.longitude
+                            }
+                        }
+                    });
+                });
+              mostrarNotificacion("Asistencia solicitada");
+            } else {
+                alert('Geolocalización no soportada por este navegador.');
+            }
+        });
+          // Escuchar cuando el dependiente está en camino
+          socket.on('dependienteEnCamino', function() {
+              mostrarNotificacion("El dependiente está en camino");
+
+              // Vibrate the device for 1000 milliseconds
+              if (navigator.vibrate) {
+                  navigator.vibrate(1000); // Vibrate for one second
+              } else {
+                  console.log("Vibration not supported on this device");
+              }
+          });
+
+            // Vibrate the device for 1000 milliseconds
+            if (navigator.vibrate) {
+                navigator.vibrate(1000); // Vibrate for one second
+            } else {
+                console.log("Vibration not supported on this device");
+            }
+        
+      </script>
+      <script src="dropdown-menu.js"></script>
+  </body>
+  </html>

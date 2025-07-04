@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <link href="style.css" rel="stylesheet">
+  <link href="voicecontrol.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  </head>
+  <body>
+  <header>
+    <div id="navbar" class="nav-container">
+      <nav class="nav-bar">
+        <div id="menu-btn">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <button id="btnAsistencia">Asistencia</button> 
+      </nav>
+    </div>
+  </header>
+    <div id="dropdown-menu" class="dropdown-menu">
+      <div class="cancel">
+        <div id="cancel-btn">
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="links">
+        <a href="index.html">Inicio</a><br>
+        <a href="mi_lista.html">Mi Lista</a><br>
+        <a href="favoritos.html">Favoritos</a><br>
+        <a href="productos.html">Productos</a><br>
+        <a href="escanear.html">Escanear</a><br>
+        <a href="voicecontrol.html">Búsqueda</a><br>
+      </div>
+    </div>
+  <!-- Menú desplegable -->
+  <div class="menu">
+      <button>☰</button>
+      <div class="menu-content">
+        <a href="index.html">Inicio</a><br>
+          <a href="mi_lista.html">Mi Lista</a>
+          <a href="productos.html">Productos</a>
+          <a href="favoritos.html">Favoritos</a>
+          <a href="escanear.html">Escanear</a>
+          <a href="pago.html">Pago</a>
+      </div>
+  </div>
+    <h1>Búsqueda por Voz</h1>
+
+</head>
+<body>
+    <div id="result" contenteditable="true"></div>
+    <button id="voice-control-btn">Iniciar Búsqueda por Voz</button>
+   <div id="notification" class="notification"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <script>
+      const socket = io();
+      const resultDiv = document.getElementById('result');
+      const voiceControlBtn = document.getElementById('voice-control-btn');
+      let recognition;
+      let isRecognizing = false;
+
+      function startVoiceRecognition() {
+          if ('webkitSpeechRecognition' in window) {
+              recognition = new webkitSpeechRecognition();
+              recognition.lang = 'es-ES';
+              recognition.continuous = true;
+              recognition.interimResults = true;
+
+              recognition.onresult = function(event) {
+                  const result = event.results[event.results.length - 1][0].transcript;
+                  resultDiv.innerText += ' ' + result;  // Agregar el resultado a la página
+
+                  // Verificar si el resultado incluye palabras específicas
+                  if (result.includes('pera') || result.includes('plátano')) {
+                      window.location.href = "ubicacion1.html"; 
+                  } else if (result.includes('leche')) {
+                      window.location.href = "ubicacion2.html"; 
+                  }
+              };
+
+              recognition.onerror = function(event) {
+                  console.error('Error de reconocimiento de voz:', event.error);
+              };
+
+              recognition.start();
+              voiceControlBtn.innerText = 'Detener Búsqueda por Voz';
+              isRecognizing = true;
+          } else {
+              resultDiv.innerText = 'El navegador no soporta la API de reconocimiento de voz';
+          }
+      }
+
+      function stopVoiceRecognition() {
+          if (recognition && isRecognizing) {
+              recognition.stop();
+              voiceControlBtn.innerText = 'Iniciar Búsqueda por Voz';
+              isRecognizing = false;
+          }
+      }
+
+      voiceControlBtn.addEventListener('click', function() {
+          if (isRecognizing) {
+              stopVoiceRecognition();
+          } else {
+              startVoiceRecognition();
+          }
+      });
+    document.getElementById('btnAsistencia').addEventListener('click', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                socket.emit('solicitarAsistencia', {
+                    ubicacion: {
+                        coords: {
+                            latitude: position.coords.latitude,
+                            longitude: position.coords.longitude
+                        }
+                    }
+                });
+            });
+          mostrarNotificacion("Asistencia solicitada");
+        } else {
+            alert('Geolocalización no soportada por este navegador.');
+        }
+    });
+
+    // Escuchar cuando el dependiente está en camino
+    socket.on('dependienteEnCamino', function() {
+        mostrarNotificacion("El dependiente está en camino");
+
+        // Vibrate the device for 1000 milliseconds
+        if (navigator.vibrate) {
+            navigator.vibrate(1000); // Vibrate for one second
+        } else {
+            console.log("Vibration not supported on this device");
+        }
+    });
+    function mostrarNotificacion(mensaje) {
+        const notification = document.getElementById('notification');
+        notification.textContent = mensaje;
+        notification.style.display = 'block';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    }
+  </script>
+   <script src="dropdown-menu.js"></script>
+
+</body>
+</html>
+

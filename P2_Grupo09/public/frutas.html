@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frutas</title>
+    <link href="style.css" rel="stylesheet">
+  <link href="productos.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+  <header>
+    <div id="navbar" class="nav-container">
+      <nav class="nav-bar">
+        <div id="menu-btn">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <button id="btnAsistencia">Asistencia</button> 
+      </nav>
+    </div>
+  </header>
+    <div id="dropdown-menu" class="dropdown-menu">
+      <div class="cancel">
+        <div id="cancel-btn">
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="links">
+        <a href="index.html">Inicio</a><br>
+        <a href="productos.html">Productos</a><br>
+        <a href="mi_lista.html">Mi Lista</a><br>
+        <a href="favoritos.html">Favoritos</a><br>
+        <a href="escanear.html">Escanear</a><br>
+        <a href="voicecontrol.html">Búsqueda</a><br>
+      </div>
+    </div>
+  <!-- Menú desplegable -->
+  <div class="menu">
+      <button>☰</button>
+      <div class="menu-content">
+        <a href="index.html">Inicio</a>
+        <a href="productos.html">Productos</a>
+        <a href="mi_lista.html">Mi Lista</a>
+        <a href="favoritos.html">Favoritos</a>
+        <a href="escanear.html">Escanear</a>
+        <a href="voicecontrol.html">Búsqueda</a>
+      </div>
+  </div>
+    <h1>Nuestra selección de frutas</h1>
+    <div class="container_productos">
+      <div class="producto_super">
+          <h2>Pera</h2>
+          <img src="media/img/pera.png" alt=" Pera" id="pera">
+          <p>Precio: 2.50 €</p>
+        <div class="botones">
+          <button class="btn-carrito" onclick="agregarAlCarrito(1, 'Pera', 2.5)">+</button>
+          <button class="btn-favorito" onclick="agregarAFavoritos(1, 'Pera', 2.5)"><i class="fas fa-star"></i></button>
+        </div>
+      </div>
+      <div class="producto_super">
+          <h2>Plátano</h2>
+          <img src="media/img/platanos.png" alt="Plátanos">
+          <p>Precio: 1.75 €</p>
+        <div class="botones">
+          <button class="btn-carrito" onclick="agregarAlCarrito(2, 'Plátano', 1.75)">+</button>
+          <button class="btn-favorito" onclick="agregarAFavoritos(2, 'Plátano', 1.75)"><i class="fas fa-star"></i></button>
+        </div>
+        </div>
+      </div>
+    <!-- Otros productos... -->
+  <div id="notification" class="notification"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Función para agregar un producto al carrito
+        function agregarAlCarrito(id, nombre, precio) {
+            const producto = { id, nombre, precio };
+            socket.emit('agregarAlCarrito', producto);
+        }
+
+        // Función para agregar un producto a favoritos
+        function agregarAFavoritos(id, nombre, precio) {
+            const producto = { id, nombre, precio };
+            socket.emit('agregarAFavoritos', producto);
+        }
+      document.getElementById('btnAsistencia').addEventListener('click', function() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function(position) {
+                  socket.emit('solicitarAsistencia', {
+                      ubicacion: {
+                          coords: {
+                              latitude: position.coords.latitude,
+                              longitude: position.coords.longitude
+                          }
+                      }
+                  });
+              });
+            mostrarNotificacion("Asistencia solicitada");
+          } else {
+              alert('Geolocalización no soportada por este navegador.');
+          }
+      });
+
+      // Escuchar cuando el dependiente está en camino
+      socket.on('dependienteEnCamino', function() {
+          mostrarNotificacion("El dependiente está en camino");
+
+          // Vibrate the device for 1000 milliseconds
+          if (navigator.vibrate) {
+              navigator.vibrate(1000); // Vibrate for one second
+          } else {
+              console.log("Vibration not supported on this device");
+          }
+      });
+      function mostrarNotificacion(mensaje) {
+          const notification = document.getElementById('notification');
+          notification.textContent = mensaje;
+          notification.style.display = 'block';
+          setTimeout(() => {
+              notification.style.display = 'none';
+          }, 3000);
+      }
+    </script>
+    <script src="dropdown-menu.js"></script>
+</body>
+</html>

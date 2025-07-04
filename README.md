@@ -6,6 +6,12 @@ Designed and implemented by **Sonsoles Molina**, **Anna García**, and **Gonzalo
 
 ---
 
+## 📁 Project Structure
+
+- `P1_Grupo09.pdf`: UX research, interaction design, wireframes and proposed solution  
+- `P2_Grupo09/`: Final implementation of the prototype (codebase and assets)
+
+---
 ## 💡 Project Overview
 
 In busy supermarkets, elderly customers often face physical and technological barriers when shopping. Our goal was to design and prototype a system that replaces the traditional cart with an intuitive, accessible application that leverages ubiquitous computing.

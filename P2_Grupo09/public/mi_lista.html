@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Lista</title>
+  <link href="style.css" rel="stylesheet">
+  <link href="lista.css" rel="stylesheet">
+</head>
+  <body>
+  <header>
+    <div id="navbar" class="nav-container">
+      <nav class="nav-bar">
+        <div id="menu-btn">
+          <div class="bar"></div>
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+        <button id="btnAsistencia">Asistencia</button> 
+      </nav>
+    </div>
+  </header>
+    <div id="dropdown-menu" class="dropdown-menu">
+      <div class="cancel">
+        <div id="cancel-btn">
+          <div class="bar"></div>
+          <div class="bar"></div>
+        </div>
+      </div>
+      <div class="links">
+        <a href="index.html">Inicio</a><br>
+        <a href="productos.html">Productos</a><br>
+        <a href="mi_lista.html">Mi Lista</a><br>
+        <a href="favoritos.html">Favoritos</a><br>
+        <a href="escanear.html">Escanear</a><br>
+        <a href="voicecontrol.html">Búsqueda</a><br>
+      </div>
+    </div>
+  <!-- Menú desplegable -->
+    <div class="menu">
+        <button>☰</button>
+        <div class="menu-content">
+          <a href="index.html">Inicio</a>
+          <a href="productos.html">Productos</a>
+          <a href="mi_lista.html">Mi Lista</a>
+          <a href="favoritos.html">Favoritos</a>
+          <a href="escanear.html">Escanear</a>
+          <a href="voicecontrol.html">Búsqueda</a>
+        </div>
+    </div>
+    <h1>Mi Lista</h1>
+
+    <ul id="lista-carrito">
+        <!-- Aquí se mostrarán los productos del carrito -->
+    </ul>
+    <div class="pago">
+      <button class="btnpago" id="pagoapp">Pagar con tarjeta</button>
+      <img src="media/img/pago.png" alt="Pago">
+      <button class="btnpago" id="efectivo">Pagar en efectivo</button>
+    </div>
+    <div id="notification" class="notification"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+
+    <script>
+        const socket = io();
+        // Función para obtener y mostrar la lista de productos del carrito
+      let carrito = { productos: [], total: 0 };
+        function mostrarListaCarrito() {
+            fetch('/mi-lista')
+                .then(response => response.json())
+                .then(lista => {
+                    const listaCarrito = document.getElementById('lista-carrito');
+                    listaCarrito.innerHTML = '';
+                    let total = 0;  // Inicializar el total a 0
+                    carrito.productos = [];
+                    lista.forEach(producto => {
+                        const listItem = document.createElement('li');
+                        listItem.id = producto.id;
+                        listItem.cantidad = producto.cantidad;
+                      // Mostrar el nombre, cantidad y precio total del producto
+                        const precioTotal = producto.precio * producto.cantidad;
+                        total += precioTotal;  // Sumar al total
+                      carrito.productos.push({
+                          id: producto.id,
+                          nombre: producto.nombre,
+                          cantidad: producto.cantidad,
+                          precioTotal: precioTotal
+                      });
+                        listItem.textContent = `${producto.nombre} - ${producto.cantidad} uds - ${precioTotal.toFixed(2)}€`;
+
+                        // Botón para añadir producto
+                        const botonAñadir = document.createElement('button');
+                        botonAñadir.textContent = '+';
+                        botonAñadir.className = 'btn-anadir';
+                        botonAñadir.onclick = () => {
+                            agregarProducto(producto.id);
+                        };
+                        listItem.appendChild(botonAñadir);
+
+                        // Botón para quitar producto
+                        const botonQuitar = document.createElement('button');
+                        botonQuitar.textContent = '-';
+                        botonQuitar.className = 'btn-quitar';
+                        botonQuitar.onclick = () => {
+                            quitarProducto(producto.id, 1);
+                        };
+                        listItem.appendChild(botonQuitar);
+
+                        listaCarrito.appendChild(listItem);
+                    });
+                  // Crear y mostrar el total al final de la lista
+                  const totalItem = document.createElement('li');
+                  totalItem.textContent = `Total: ${total.toFixed(2)}€`;
+                  totalItem.style.fontWeight = 'bold';  // Hacer el texto del total en negrita
+                  listaCarrito.appendChild(totalItem);
+                  addSwipeToDelete();
+                  carrito.total = total;
+                })
+                .catch(error => {
+                    console.error('Error al obtener la lista de productos del carrito:', error);
+                });
+        }
+
+        // Función para agregar un producto al carrito
+        function agregarProducto(id) {
+            socket.emit('agregarAlCarrito', { id, cantidad: 1 });
+        }
+
+        // Función para quitar un producto del carrito
+        function quitarProducto(id, cantidad) {
+            socket.emit('quitarDelCarrito', { id, cantidad });
+        }
+      function addSwipeToDelete() {
+          const items = document.querySelectorAll('#lista-carrito li'); // Seleccionar todos los elementos li en el carrito
+          items.forEach(item => {
+              // Crear una instancia de Hammer en cada elemento li
+              let mc = new Hammer(item);
+              // Escuchar el evento de deslizar a la izquierda
+              mc.on("swipeleft", function(ev) {
+                const itemId = item.id;
+                const itemCantidad = item.cantidad;// Obtener el ID del producto asociado al item
+                  quitarProducto(parseInt(itemId), parseInt(itemCantidad)); // Llamar a la función para eliminar el producto del carrito
+              });
+          });
+      }
+        // Llamar a la función para obtener y mostrar la lista de productos del carrito cuando la página se carga
+        window.onload = mostrarListaCarrito;
+
+        // Escuchar el evento 'listaActualizada' y actualizar la lista de productos del carrito cuando se recibe la actualización
+        socket.on('listaActualizada', () => {
+            mostrarListaCarrito();
+        });
+      document.getElementById('btnAsistencia').addEventListener('click', function() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function(position) {
+                  socket.emit('solicitarAsistencia', {
+                      ubicacion: {
+                          coords: {
+                              latitude: position.coords.latitude,
+                              longitude: position.coords.longitude
+                          }
+                      }
+                  });
+              });
+            mostrarNotificacion("Asistencia solicitada");
+          } else {
+              alert('Geolocalización no soportada por este navegador.');
+          }
+      });
+
+      // Escuchar cuando el dependiente está en camino
+      socket.on('dependienteEnCamino', function() {
+          mostrarNotificacion("El dependiente está en camino");
+
+          // Vibrate the device for 1000 milliseconds
+          if (navigator.vibrate) {
+              navigator.vibrate(1000); // Vibrate for one second
+          } else {
+              console.log("Vibration not supported on this device");
+          }
+      });
+
+      // Eventos de los botones de pago
+
+       let ndefScannerActive = true; // Estado para controlar el escáner
+      document.getElementById('pagoapp').addEventListener('click', async function() {
+          if ('NDEFReader' in window) {
+            mostrarNotificacion("Acerca tu dispositivo a una etiqueta NFC para pagar.");
+           ndefScannerActive = false;
+          toggleNFCScanning();
+          } else {
+             mostrarNotificacion("Web NFC no es soportado en este navegador.");
+          }
+      });
+
+      function toggleNFCScanning() {
+          if ('NDEFReader' in window) {
+              if (!ndefScannerActive) {
+                  try {
+                      const ndef = new NDEFReader();
+                      ndef.scan();
+                      ndef.onreading = event => {
+                          console.log("NFC detectado.");
+                          mostrarNotificacion("NFC detectado, pago realizado.");
+                          socket.emit('pagoConTarjeta', carrito);
+                      };
+                      ndefScannerActive = true;
+                      console.log("Escáner NFC activado.");
+                  } catch (error) {
+                      console.error("Error al iniciar el escáner NFC:", error);
+                      mostrarNotificacion("Error al iniciar el escáner NFC: " + error.message);
+                  }
+              } else {
+                  console.log("El escáner NFC ya está activo.");
+                  mostrarNotificacion("El escáner NFC ya está activo.");
+              }
+          } else {
+              mostrarNotificacion("Web NFC no es soportado en este navegador.");
+          }
+      }
+
+
+      document.getElementById('efectivo').addEventListener('click', function() {
+          socket.emit('pagoEnEfectivo', carrito);
+           mostrarNotificacion('Pago en efectivo notificado, diríjase a caja.');
+      });
+      function mostrarNotificacion(mensaje) {
+          const notification = document.getElementById('notification');
+          notification.textContent = mensaje;
+          notification.style.display = 'block';
+          setTimeout(() => {
+              notification.style.display = 'none';
+          }, 3000);
+      }
+    </script>
+    <script src="dropdown-menu.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dependiente</title>
+    <link href="dependiente.css" rel="stylesheet">
+</head>
+<a href= "index.html"><img src="media/img/inicio.png" alt="Inicio"></a>
+<h2>Solicitudes de asistencia de los clientes :</h2>
+<div id="notificaciones"></div>
+<h2>Pedidos realizados:</h2>
+<ul id="listaPedidos"></ul>
+<script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/howler"></script>
+<script>
+    var socket = io();
+
+  socket.on('asistenciaRequerida', function(asistencias) {
+      // Para reproducir el sonido
+      var sound = new Howl({
+        src: ['media/system-notification.mp3']
+      });
+
+      // Para reproducir el sonido
+      sound.play();
+      var notifDiv = document.getElementById('notificaciones');
+      notifDiv.innerHTML = ''; // Clear any existing content
+
+      if (Array.isArray(asistencias)) {
+          asistencias.forEach(function(asistencia) {
+              var latitude = asistencia.ubicacion.ubicacion.coords.latitude;
+              var longitude = asistencia.ubicacion.ubicacion.coords.longitude;
+              notifDiv.innerHTML += `<p>Solicitud ${asistencia.id}: Cliente necesita ayuda en ${latitude}, ${longitude}. <button onclick="confirmarAsistencia(${asistencia.id})">Aceptar</button> <button onclick="eliminarAsistencia(${asistencia.id})">Eliminar</button></p>`;
+          });
+      } else {
+          console.error('Received data is not an array:', asistencias);
+      }
+  });
+
+
+
+  function confirmarAsistencia(idAsistencia) {
+      socket.emit('asistenciaConfirmada', idAsistencia);
+  }
+
+  function eliminarAsistencia(idAsistencia) {
+      socket.emit('eliminarAsistencia', idAsistencia);
+  }
+
+  // Escuchar actualizaciones de pedidos
+  socket.on('actualizarPedidos', function(pedidos) {
+      mostrarPedidos(pedidos);
+  });
+
+  function mostrarPedidos(pedidos) {
+      const listaPedidos = document.getElementById('listaPedidos');
+      listaPedidos.innerHTML = ''; // Limpiar la lista actual
+      pedidos.forEach(pedido => {
+          const elementoPedido = document.createElement('li');
+          // Acceder al array de productos y al método de pago
+          if (Array.isArray(pedido.productos.productos)) {
+              elementoPedido.textContent = `Pedido ${pedido.id}: ${pedido.productos.productos.map(p => `${p.nombre} (${p.cantidad} uds - ${p.precioTotal.toFixed(2)}€)`).join(', ')} - Pago: ${pedido.metodoPago}`;
+          } else {
+              console.error('Error: pedido.productos.productos no es un array', pedido.productos.productos);
+              elementoPedido.textContent = `Pedido ${pedido.id}: Error en la estructura de datos`;
+          }
+
+          const botonConfirmar = document.createElement('button');
+          botonConfirmar.textContent = 'Confirmar';
+          botonConfirmar.onclick = function() {
+              confirmarPedido(pedido.id);
+          };
+          elementoPedido.appendChild(botonConfirmar);
+          listaPedidos.appendChild(elementoPedido);
+      });
+  }
+
+  function confirmarPedido(idPedido) {
+      socket.emit('confirmarPedido', idPedido);
+  }
+
+  // Solicitar inicialmente la lista de pedidos
+  socket.emit('solicitarPedidos');
+  // Solicitar inicialmente la lista de pedidos
+  socket.emit('solicitarAsistencias');
+
+  socket.on('asistenciaActualizada', function(asistencias) {
+      var notifDiv = document.getElementById('notificaciones');
+      notifDiv.innerHTML = ''; // Clear any existing content
+
+      if (Array.isArray(asistencias)) {
+          asistencias.forEach(function(asistencia) {
+              var latitude = asistencia.ubicacion.ubicacion.coords.latitude;
+              var longitude = asistencia.ubicacion.ubicacion.coords.longitude;
+              notifDiv.innerHTML += `<p>Solicitud ${asistencia.id}: Cliente necesita ayuda en ${latitude}, ${longitude}. <button onclick="confirmarAsistencia(${asistencia.id})">Aceptar</button> <button onclick="eliminarAsistencia(${asistencia.id})">Eliminar</button></p>`;
+          });
+      } else {
+          console.error('Received data is not an array:', asistencias);
+      }
+  });
+  
+</script>

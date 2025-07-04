@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "nombre": "Pera",
+    "precio": 2.5
+  },
+  {
+    "id": 3,
+    "nombre": "Pasta",
+    "precio": 3.5
+  },
+  {
+    "id": 2,
+    "nombre": "Plátano",
+    "precio": 1.75
+  }
+]

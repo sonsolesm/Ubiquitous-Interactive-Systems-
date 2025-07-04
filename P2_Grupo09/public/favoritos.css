@@ -1,0 +1,54 @@
+/* Estilos para el listado de tareas */
+
+#lista-favoritos {
+  padding-left: 0; 
+  margin-left: 3vh;   
+}
+
+#lista-favoritos li {
+  padding: 1vh;
+  border-bottom: 1px solid #ecf0f1;
+  border-block-color: #001e57;
+  transition: background-color 0.3s;
+  margin-right:2vh;
+  margin-left:0;
+  padding-left:0;
+  margin-top:1.5vh;
+  color:#11053b;
+  list-style-type: none; 
+  font-size:3.5vh;
+}
+
+#lista-favoritos li:last-child {
+  border-bottom: none;
+}
+
+#lista-favoritos li:hover {
+  background-color: #ecf0f1;
+}
+
+.btn-anadir {
+    background-color: #93D84D; 
+    color: white; 
+    border:none;
+    border-radius: 2vh;
+    cursor: pointer; 
+    font-size:2.5vh;
+    font-weight:bold;
+    padding-right:1.1vh;
+    padding-left:1.1vh;
+}
+
+.btn-quitar {
+    background-color: red; 
+    border:none;
+    border-radius: 2vh;
+    color: white;
+    cursor: pointer; 
+    font-size:2.5vh;
+    font-weight:bold;
+    padding-right:1.2vh;
+    padding-left:1.2vh;
+    margin-left:2vh;
+    margin-right:1vh; 
+}

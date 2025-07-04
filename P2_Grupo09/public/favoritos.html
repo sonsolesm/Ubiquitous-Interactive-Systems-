@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Favoritos</title>
+   <link href="style.css" rel="stylesheet">
+    <link href="favoritos.css" rel="stylesheet">
+  </head>
+    <body>
+    <header>
+      <div id="navbar" class="nav-container">
+        <nav class="nav-bar">
+          <div id="menu-btn">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+          <button id="btnAsistencia">Asistencia</button> 
+        </nav>
+      </div>
+    </header>
+      <div id="dropdown-menu" class="dropdown-menu">
+        <div class="cancel">
+          <div id="cancel-btn">
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
+        </div>
+        <div class="links">
+          <a href="index.html">Inicio</a><br>
+          <a href="productos.html">Productos</a><br>
+          <a href="mi_lista.html">Mi Lista</a><br>
+          <a href="favoritos.html">Favoritos</a><br>
+          <a href="escanear.html">Escanear</a><br>
+          <a href="voicecontrol.html">Búsqueda</a><br>
+        </div>
+      </div>
+    <!-- Menú desplegable -->
+    <div class="menu">
+        <button>☰</button>
+        <div class="menu-content">
+          <a href="index.html">Inicio</a>
+          <a href="productos.html">Productos</a>
+          <a href="mi_lista.html">Mi Lista</a>
+          <a href="favoritos.html">Favoritos</a>
+          <a href="escanear.html">Escanear</a>
+          <a href="voicecontrol.html">Búsqueda</a>
+        </div>
+    </div>
+    <h1>Mis Favoritos</h1>
+    <h3>¡Arrastra tus productos favoritos para reordenarlos!</h3>
+    <ul id="lista-favoritos">
+        <!-- Aquí se mostrarán los productos favoritos -->
+    </ul>
+    <div id="notification" class="notification"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.14.0/Sortable.min.js"></script>
+    <script>
+        const socket = io();
+
+        // Función para quitar un producto de favoritos
+        function quitarDeFavoritos(id) {
+            socket.emit('quitarDeFavoritos', id);
+        }
+
+        // Función para agregar un producto al carrito
+        function agregarAlCarrito(id, nombre, precio) {
+            const producto = { id, nombre, precio };
+            socket.emit('agregarAlCarrito', producto);
+        }
+
+        // Función para mostrar la lista de favoritos
+        function mostrarFavoritos(favoritos) {
+            const listaFavoritos = document.getElementById('lista-favoritos');
+            listaFavoritos.innerHTML = '';
+
+            if (favoritos.length === 0) {
+                const listItem = document.createElement('li');
+                listItem.textContent = 'No tienes ningún producto en favoritos. Puedes añadir productos a tu lista de favoritos en la seccion de productos';
+                listaFavoritos.appendChild(listItem);
+            } else {
+                favoritos.forEach(producto => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${producto.nombre} - ${producto.precio.toFixed(2)}€`;
+
+                    // Botón para quitar de favoritos
+                    const botonQuitar = document.createElement('button');
+                    botonQuitar.textContent = 'Quitar de favoritos';
+                    botonQuitar.className = 'btn-quitar';
+                    botonQuitar.onclick = () => {
+                        quitarDeFavoritos(producto.id);
+                    };
+                    listItem.appendChild(botonQuitar);
+
+                    // Botón para agregar al carrito
+                    const botonAgregarCarrito = document.createElement('button');
+                    botonAgregarCarrito.textContent = 'Añadir al carrito';
+                    botonAgregarCarrito.className = 'btn-anadir';
+                    botonAgregarCarrito.onclick = () => {
+                        agregarAlCarrito(producto.id, producto.nombre, producto.precio);
+                    };
+                    listItem.appendChild(botonAgregarCarrito);
+
+                    listaFavoritos.appendChild(listItem);
+                });
+
+                new Sortable(listaFavoritos, {
+                    animation: 150,
+                    ghostClass: 'sortable-ghost',
+                    onEnd: function (/**Event*/evt) {
+                        var itemEl = evt.item;  // el elemento arrastrado
+                        // Aquí puedes emitir un evento al servidor para actualizar el orden
+                        // o actualizar la lista en el cliente si no requieres persistencia.
+                    },
+                });
+            }
+        }
+
+        // Obtener y mostrar la lista de favoritos cuando la página se carga
+        fetch('/favoritos.json')
+            .then(response => response.json())
+            .then(favoritos => {
+                mostrarFavoritos(favoritos);
+            })
+            .catch(error => {
+                console.error('Error al obtener la lista de favoritos:', error);
+            });
+
+        // Actualizar la lista de favoritos cuando se emite el evento 'favoritosActualizados'
+        socket.on('favoritosActualizados', (favoritos) => {
+            mostrarFavoritos(favoritos);
+        });
+      document.getElementById('btnAsistencia').addEventListener('click', function() {
+          if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(function(position) {
+                  socket.emit('solicitarAsistencia', {
+                      ubicacion: {
+                          coords: {
+                              latitude: position.coords.latitude,
+                              longitude: position.coords.longitude
+                          }
+                      }
+                  });
+              });
+            mostrarNotificacion("Asistencia solicitada");
+          } else {
+              alert('Geolocalización no soportada por este navegador.');
+          }
+      });
+
+      // Escuchar cuando el dependiente está en camino
+      socket.on('dependienteEnCamino', function() {
+          mostrarNotificacion("El dependiente está en camino");
+
+          // Vibrate the device for 1000 milliseconds
+          if (navigator.vibrate) {
+              navigator.vibrate(1000); // Vibrate for one second
+          } else {
+              console.log("Vibration not supported on this device");
+          }
+      });
+      function mostrarNotificacion(mensaje) {
+          const notification = document.getElementById('notification');
+          notification.textContent = mensaje;
+          notification.style.display = 'block';
+          setTimeout(() => {
+              notification.style.display = 'none';
+          }, 3000);
+      }
+    </script>
+    <script src="dropdown-menu.js"></script>
+</body>
+</html>

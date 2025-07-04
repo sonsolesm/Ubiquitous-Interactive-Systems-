@@ -1,0 +1,71 @@
+img{
+  width:50%;
+  height:50%;
+}
+
+body{
+  text-align: center;
+}
+
+.producto_super button {
+  background-color: #ffffff;
+  border-color:#ffffff;
+}
+
+.producto_super {
+    display: flex;  
+    flex-direction: column;  
+    align-items: center;  
+}
+
+/* Contenedor para agrupar todos los productos */
+.container_productos {
+    display: flex;  
+    flex-wrap: wrap;  
+    justify-content: space-around;  
+}
+.botones {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fas.fa-star {
+    color: gold;  
+    font-size: 6vh;
+}
+
+.btn-carrito {
+    color: green; /* Color de texto */
+    font-size: 10vh;
+    font-weight:bold;
+    cursor: pointer; 
+    border:none;
+    margin-top:-1vh;
+}
+
+.btn-favorito {
+    border:none;
+    cursor: pointer; 
+}
+
+p{
+  font-size:3.5vh;
+}
+
+h2{
+   font-size:4vh;
+}
+
+.notification {
+    position: fixed;
+    top: 50vh; /* Centra verticalmente: 50% de la altura de la ventana */
+    left: 50vw; /* Centra horizontalmente: 50% del ancho de la ventana */
+    transform: translate(-50%, -50%); 
+    background-color:#4670b4; /* Color de fondo */
+    color: white; /* Color del texto */
+    padding: 10px; /* Espaciado interno alrededor del texto */
+    border-radius: 5px; /* Bordes redondeados */
+    z-index: 1000;
+    display: none; 
+}

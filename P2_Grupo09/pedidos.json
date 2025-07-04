@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1715170447617,
+    "productos": {
+      "productos": [
+        {
+          "id": 2,
+          "nombre": "Plátano",
+          "cantidad": 2,
+          "precioTotal": 3.5
+        },
+        {
+          "id": 1,
+          "nombre": "Pera",
+          "cantidad": 3,
+          "precioTotal": 7.5
+        }
+      ],
+      "total": 11
+    },
+    "metodoPago": "Efectivo"
+  },
+  {
+    "id": 1715170454075,
+    "productos": {
+      "productos": [
+        {
+          "id": 2,
+          "nombre": "Plátano",
+          "cantidad": 2,
+          "precioTotal": 3.5
+        },
+        {
+          "id": 1,
+          "nombre": "Pera",
+          "cantidad": 3,
+          "precioTotal": 7.5
+        }
+      ],
+      "total": 11
+    },
+    "metodoPago": "Tarjeta"
+  },
+  {
+    "id": 1715170509776,
+    "productos": {
+      "productos": [
+        {
+          "id": 2,
+          "nombre": "Plátano",
+          "cantidad": 1,
+          "precioTotal": 1.75
+        },
+        {
+          "id": 1,
+          "nombre": "Pera",
+          "cantidad": 1,
+          "precioTotal": 2.5
+        }
+      ],
+      "total": 4.25
+    },
+    "metodoPago": "Tarjeta"
+  }
+]

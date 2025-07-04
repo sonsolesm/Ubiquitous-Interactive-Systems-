@@ -1,0 +1,66 @@
+img{
+  margin-top:2vh;
+  width:42%;
+  height:42%;
+  margin-bottom:2vh;
+}
+
+h2{
+  font-family: sans-serif;
+  color: #001e57;
+  font-size:3vh;
+  font-weight:bold;
+  text-align:center;
+  margin-top:5vh;
+  text-transform:uppercase;
+}
+
+#notificaciones {
+  font-family: sans-serif;
+  padding: 1vh;
+  border-bottom: 1px solid #ecf0f1;
+  border-block-color: #001e57;
+  transition: background-color 0.3s;
+  margin-left:3vh;
+  margin-right:3vh;
+  padding-left:0;
+  margin-top:1.5vh;
+  color:#11053b;
+  list-style-type: none; 
+  font-size:2.5vh;
+}
+
+#notificaciones button{
+  font-family: sans-serif;
+  color:#001e57;
+  font-size:2vh;
+  border: 11053b;
+}
+
+
+#listaPedidos {
+  font-family: sans-serif;
+  padding: 1vh;
+  transition: background-color 0.3s;
+  margin-left:3vh;
+  margin-right:3vh;
+  padding-left:0;
+  margin-top:1.5vh;
+  color:#11053b;
+  list-style-type: none; 
+  font-size:2.5vh;
+  
+}
+#listaPedidos li{
+   border-bottom: 1px solid #ecf0f1;
+  margin-top:2vh;
+ padding-bottom:2vh;
+}
+
+#listaPedidos button{
+  font-family: sans-serif;
+  color:#001e57;
+  font-size:2vh;
+  margin-left:2vh;
+}
+

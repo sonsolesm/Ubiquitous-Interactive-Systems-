@@ -1,0 +1,9 @@
+video {
+  width: 100%;
+  border: 3px solid #001e57;
+  border-radius: 8px;
+}
+
+h2{
+  margin-top:10vh;
+}

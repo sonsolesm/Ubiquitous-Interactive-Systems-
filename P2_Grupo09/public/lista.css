@@ -1,0 +1,99 @@
+/* Estilos para el listado de tareas */
+
+#lista-carrito {
+  padding-left: 0; 
+  margin-left: 4vh;   
+}
+
+#lista-carrito li {
+  padding: 1vh;
+  border-bottom: 1px solid #ecf0f1;
+  border-block-color: #001e57;
+  transition: background-color 0.3s;
+  margin-right:2vh;
+  margin-left:0;
+  padding-left:0;
+  margin-top:1.5vh;
+  color:#11053b;
+  list-style-type: none; 
+  font-size:3.5vh;
+}
+
+#lista-carrito li:last-child {
+  border-bottom: none;
+}
+
+#lista-carrito li:hover {
+  background-color: #ecf0f1;
+}
+
+.btn-anadir {
+    background-color: #63c700; 
+    color: white; 
+    border:none;
+    border-radius: 3vh;
+    cursor: pointer; 
+    margin-right: 2vh; 
+    font-size:3.5vh;
+    font-weight:bold;
+    padding-right:2vh;
+    padding-left:2vh;
+    margin-left:2vh;
+}
+
+.btn-quitar {
+    background-color: red; 
+    border:none;
+    border-radius: 3vh;
+    color: white;
+    cursor: pointer; 
+    font-size:3.5vh;
+    font-weight:bold;
+    padding-right:2.5vh;
+    padding-left:2.5vh;
+}
+
+img{
+  height:90%;
+  width:93%;
+}
+.pago{
+  margin-top:7vh;
+  display: flex;  
+  flex-wrap: wrap;  
+  justify-content: space-around;  
+}
+.pago h2 {
+  text-align: left;
+  margin-left: 4vh;
+  margin-top: 2vh;
+  margin-bottom: 5vh;
+}
+
+.pago .btnpago {
+  border-radius: 1.5vh;
+  color: rgb(255, 255, 255);
+  margin-left: 4vh;
+  margin-right: 4vh;
+  font-size: 3.5vh;
+  font-weight: bold;
+  font-family: 'Open Sans', sans-serif;
+  text-align: center;
+  text-decoration: none;
+  padding-top: 1.5vh;
+  padding-bottom: 1.5vh;
+  width: 100%;
+  margin-top:1vh;
+  margin-bottom:1vh;
+}
+
+#pagoapp {
+  background-color: #004AAD;
+  border: none;
+}
+
+#efectivo {
+  background-color: #93D84D;
+  border: none;
+}
+
